@@ -1,10 +1,11 @@
-const header = document.querySelector('#siteHeader');
-const navToggle = document.querySelector('#navToggle');
-const siteNav = document.querySelector('#siteNav');
 const modal = document.querySelector('#mediaModal');
 const modalBody = document.querySelector('#modalBody');
 const modalTitle = document.querySelector('#modalTitle');
 const modalClose = document.querySelector('.modal-close');
+const sectionTabs = [...document.querySelectorAll('[data-tab]')];
+const tabPanels = [...document.querySelectorAll('.tab-panel')];
+const themeToggle = document.querySelector('#themeToggle');
+const chinaTime = document.querySelector('#chinaTime');
 
 const galleries = {
   dify: {
@@ -28,7 +29,7 @@ const galleries = {
     title: '专业证书',
     className: 'certificates',
     images: [
-      ['assets/images/certificate-ai-agent.png', 'AI智能体应用开发工程师高级专业技术证书（证件号码已遮盖）'],
+      ['assets/images/certificate-ai-agent.png', 'AI智能体应用开发工程师高级专业技术证书'],
       ['assets/images/certificate-ai-course.png', '人工智能与创业智慧课程认证']
     ]
   },
@@ -45,94 +46,26 @@ const galleries = {
 };
 
 const portfolioWorks = [
-  { id: 'chunjiang-beef', category: 'food', title: '春江骊宴｜竹韵火灼鲜椒焗牛肉', service: '上门拍摄＋剪辑', duration: '00:27', poster: 'assets/portfolio/posters/chunjiang-beef.jpg', video: 'assets/portfolio/videos/chunjiang-beef.mp4', orientation: 'portrait' },
-  { id: 'jianshanchuan-food', category: 'food', title: '见山川｜菜品展示', service: '上门拍摄＋剪辑', duration: '00:19', poster: 'assets/portfolio/posters/jianshanchuan-food.jpg', video: 'assets/portfolio/videos/jianshanchuan-food.mp4', orientation: 'portrait' },
-  { id: 'chunjiang-space', category: 'food', title: '春江骊宴｜餐厅空间展示', service: '上门拍摄＋剪辑', duration: '00:51', poster: 'assets/portfolio/posters/chunjiang-space.jpg', video: 'assets/portfolio/videos/chunjiang-space.mp4', orientation: 'landscape' },
-  { id: 'chunjiang-chef', category: 'food', title: '春江骊宴｜主厨讲解与菜品制作', service: '上门拍摄＋剪辑', duration: '01:17', poster: 'assets/portfolio/posters/chunjiang-chef.jpg', video: 'assets/portfolio/videos/chunjiang-chef.mp4', orientation: 'portrait' },
-  { id: 'jianshanchuan-mapo', category: 'food', title: '见山川｜麻婆豆腐', service: '拍摄＋剪辑 · 真实数据案例', duration: '00:31', poster: 'assets/portfolio/posters/jianshanchuan-mapo.jpg', video: 'assets/videos/merchant-demo.mp4', orientation: 'portrait' },
-  { id: 'jianshanchuan-liver', category: 'food', title: '见山川｜爆炒腰肝', service: '拍摄＋剪辑', duration: '00:36', poster: 'assets/portfolio/posters/jianshanchuan-liver.jpg', video: 'assets/portfolio/videos/jianshanchuan-liver.mp4', orientation: 'portrait' },
-  { id: 'coffee-ai', category: 'food', title: '咖啡｜AI展示短片', service: 'AI视觉＋剪辑', duration: '00:15', poster: 'assets/portfolio/posters/coffee-ai.jpg', video: 'assets/portfolio/videos/coffee-ai.mp4', orientation: 'portrait' },
-  { id: 'jianshanchuan-guide', category: 'food', title: '见山川｜门店导引', service: '拍摄＋剪辑', duration: '00:57', poster: 'assets/portfolio/posters/jianshanchuan-guide.jpg', video: 'assets/portfolio/videos/jianshanchuan-guide.mp4', orientation: 'portrait' },
-  { id: 'jianshanchuan-fish', category: 'food', title: '见山川｜肥肠麻辣鱼', service: '拍摄＋剪辑', duration: '00:58', poster: 'assets/portfolio/posters/jianshanchuan-fish.jpg', video: 'assets/portfolio/videos/jianshanchuan-fish.mp4', orientation: 'portrait' },
-  { id: 'bunana-store', category: 'food', title: '咘呐呐辅食店｜门店探访', service: '上门拍摄＋剪辑', duration: '01:01', poster: 'assets/portfolio/posters/bunana-store.jpg', video: 'assets/portfolio/videos/bunana-store.mp4', orientation: 'portrait' },
-  { id: 'bunana-chicken-bun', category: 'food', title: '咘呐呐辅食店｜小鸡包制作', service: '产品拍摄＋剪辑', duration: '01:05', poster: 'assets/portfolio/posters/bunana-chicken-bun.jpg', video: 'assets/portfolio/videos/bunana-chicken-bun.mp4', orientation: 'portrait' },
-  { id: 'womenswear-ai-01', category: 'womenswear', title: '女装｜日常穿搭展示', service: 'AI设计＋剪辑', duration: '00:09', poster: 'assets/portfolio/posters/womenswear-ai-01.jpg', video: 'assets/portfolio/videos/womenswear-ai-01.mp4', orientation: 'portrait' },
-  { id: 'womenswear-ai-02', category: 'womenswear', title: '女装｜礼服时尚展示', service: 'AI设计＋剪辑', duration: '00:29', poster: 'assets/portfolio/posters/womenswear-ai-02.jpg', video: 'assets/portfolio/videos/womenswear-ai-02.mp4', orientation: 'portrait' },
-  { id: 'womenswear-ai-03', category: 'womenswear', title: '女装｜氛围场景短片', service: 'AI设计＋剪辑', duration: '00:17', poster: 'assets/portfolio/posters/womenswear-ai-03.jpg', video: 'assets/portfolio/videos/womenswear-ai-03.mp4', orientation: 'landscape' },
-  { id: 'jewelry-talking', category: 'jewelry', title: '珠宝｜口播切片', service: '编排＋剪辑', duration: '00:16', poster: 'assets/portfolio/posters/jewelry-talking.jpg', video: 'assets/portfolio/videos/jewelry-talking.mp4', orientation: 'portrait' },
-  { id: 'basketball-class', category: 'basketball', title: '少儿篮球｜课堂记录', service: '客户提供素材 · 剪辑包装', duration: '02:07', poster: 'assets/portfolio/posters/basketball-class.jpg', video: 'assets/portfolio/videos/basketball-class.mp4', orientation: 'landscape' },
-  { id: 'talking-head', category: 'talking', title: '人物口播｜字幕与信息包装', service: '客户提供素材 · 剪辑包装', duration: '01:15', poster: 'assets/portfolio/posters/talking-head.jpg', video: 'assets/portfolio/videos/talking-head.mp4', orientation: 'portrait' },
-  { id: 'medical-aesthetics-talking', category: 'talking', title: '医美口播｜皮肤选品解析', service: '口播剪辑＋信息包装', duration: '00:38', poster: 'assets/portfolio/posters/medical-aesthetics-talking.jpg', video: 'assets/portfolio/videos/medical-aesthetics-talking.mp4', orientation: 'portrait' },
-  { id: 'thriller-short-film', category: 'shortfilm', title: '原创短剧｜惊悚悬疑', service: '剧情策划＋剪辑包装', duration: '00:46', poster: 'assets/portfolio/posters/thriller-short-film.jpg', video: 'assets/portfolio/videos/thriller-short-film.mp4', orientation: 'portrait' }
+  { category: 'food', title: '春江骊宴｜竹韵火灼鲜椒焗牛肉', service: '上门拍摄＋剪辑', duration: '00:27', poster: 'assets/portfolio/posters/chunjiang-beef.jpg', video: 'assets/portfolio/videos/chunjiang-beef.mp4', orientation: 'portrait' },
+  { category: 'food', title: '见山川｜菜品展示', service: '上门拍摄＋剪辑', duration: '00:19', poster: 'assets/portfolio/posters/jianshanchuan-food.jpg', video: 'assets/portfolio/videos/jianshanchuan-food.mp4', orientation: 'portrait' },
+  { category: 'food', title: '春江骊宴｜餐厅空间展示', service: '上门拍摄＋剪辑', duration: '00:51', poster: 'assets/portfolio/posters/chunjiang-space.jpg', video: 'assets/portfolio/videos/chunjiang-space.mp4', orientation: 'landscape' },
+  { category: 'food', title: '春江骊宴｜主厨讲解与菜品制作', service: '上门拍摄＋剪辑', duration: '01:17', poster: 'assets/portfolio/posters/chunjiang-chef.jpg', video: 'assets/portfolio/videos/chunjiang-chef.mp4', orientation: 'portrait' },
+  { category: 'food', title: '见山川｜麻婆豆腐', service: '拍摄＋剪辑 · 真实数据案例', duration: '00:31', poster: 'assets/portfolio/posters/jianshanchuan-mapo.jpg', video: 'assets/videos/merchant-demo.mp4', orientation: 'portrait' },
+  { category: 'food', title: '见山川｜爆炒腰肝', service: '拍摄＋剪辑', duration: '00:36', poster: 'assets/portfolio/posters/jianshanchuan-liver.jpg', video: 'assets/portfolio/videos/jianshanchuan-liver.mp4', orientation: 'portrait' },
+  { category: 'food', title: '咖啡｜AI展示短片', service: 'AI视觉＋剪辑', duration: '00:15', poster: 'assets/portfolio/posters/coffee-ai.jpg', video: 'assets/portfolio/videos/coffee-ai.mp4', orientation: 'portrait' },
+  { category: 'food', title: '见山川｜门店导引', service: '拍摄＋剪辑', duration: '00:57', poster: 'assets/portfolio/posters/jianshanchuan-guide.jpg', video: 'assets/portfolio/videos/jianshanchuan-guide.mp4', orientation: 'portrait' },
+  { category: 'food', title: '见山川｜肥肠麻辣鱼', service: '拍摄＋剪辑', duration: '00:58', poster: 'assets/portfolio/posters/jianshanchuan-fish.jpg', video: 'assets/portfolio/videos/jianshanchuan-fish.mp4', orientation: 'portrait' },
+  { category: 'food', title: '咘呐呐辅食店｜门店探访', service: '上门拍摄＋剪辑', duration: '01:01', poster: 'assets/portfolio/posters/bunana-store.jpg', video: 'assets/portfolio/videos/bunana-store.mp4', orientation: 'portrait' },
+  { category: 'food', title: '咘呐呐辅食店｜小鸡包制作', service: '产品拍摄＋剪辑', duration: '01:05', poster: 'assets/portfolio/posters/bunana-chicken-bun.jpg', video: 'assets/portfolio/videos/bunana-chicken-bun.mp4', orientation: 'portrait' },
+  { category: 'womenswear', title: '女装｜日常穿搭展示', service: 'AI设计＋剪辑', duration: '00:09', poster: 'assets/portfolio/posters/womenswear-ai-01.jpg', video: 'assets/portfolio/videos/womenswear-ai-01.mp4', orientation: 'portrait' },
+  { category: 'womenswear', title: '女装｜礼服时尚展示', service: 'AI设计＋剪辑', duration: '00:29', poster: 'assets/portfolio/posters/womenswear-ai-02.jpg', video: 'assets/portfolio/videos/womenswear-ai-02.mp4', orientation: 'portrait' },
+  { category: 'womenswear', title: '女装｜氛围场景短片', service: 'AI设计＋剪辑', duration: '00:17', poster: 'assets/portfolio/posters/womenswear-ai-03.jpg', video: 'assets/portfolio/videos/womenswear-ai-03.mp4', orientation: 'landscape' },
+  { category: 'jewelry', title: '珠宝｜口播切片', service: '编排＋剪辑', duration: '00:16', poster: 'assets/portfolio/posters/jewelry-talking.jpg', video: 'assets/portfolio/videos/jewelry-talking.mp4', orientation: 'portrait' },
+  { category: 'basketball', title: '少儿篮球｜课堂记录', service: '客户提供素材 · 剪辑包装', duration: '02:07', poster: 'assets/portfolio/posters/basketball-class.jpg', video: 'assets/portfolio/videos/basketball-class.mp4', orientation: 'landscape' },
+  { category: 'talking', title: '人物口播｜字幕与信息包装', service: '客户提供素材 · 剪辑包装', duration: '01:15', poster: 'assets/portfolio/posters/talking-head.jpg', video: 'assets/portfolio/videos/talking-head.mp4', orientation: 'portrait' },
+  { category: 'talking', title: '医美口播｜皮肤选品解析', service: '口播剪辑＋信息包装', duration: '00:38', poster: 'assets/portfolio/posters/medical-aesthetics-talking.jpg', video: 'assets/portfolio/videos/medical-aesthetics-talking.mp4', orientation: 'portrait' },
+  { category: 'shortfilm', title: '原创短剧｜惊悚悬疑', service: '剧情策划＋剪辑包装', duration: '00:46', poster: 'assets/portfolio/posters/thriller-short-film.jpg', video: 'assets/portfolio/videos/thriller-short-film.mp4', orientation: 'portrait' }
 ];
-
-const portfolioGrid = document.querySelector('#portfolioGrid');
-
-const renderPortfolioWorks = (filter = 'all') => {
-  if (!portfolioGrid) return;
-  const works = filter === 'all'
-    ? portfolioWorks
-    : portfolioWorks.filter((work) => work.category === filter);
-
-  portfolioGrid.replaceChildren(...works.map((work) => {
-    const card = document.createElement('article');
-    card.className = `portfolio-card ${work.orientation}`;
-    card.dataset.category = work.category;
-    card.innerHTML = `
-      <button class="portfolio-card-media" type="button" data-video="${work.video}" data-title="${work.title}">
-        <img src="${work.poster}" alt="${work.title}作品封面" loading="lazy" />
-        <span class="portfolio-card-play" aria-hidden="true">▶</span>
-        <span class="portfolio-card-duration">${work.duration}</span>
-      </button>
-      <div class="portfolio-card-copy">
-        <h4>${work.title}</h4>
-        <p>${work.service}</p>
-      </div>`;
-    return card;
-  }));
-};
-
-renderPortfolioWorks();
-
-document.querySelectorAll('[data-work-filter]').forEach((button) => {
-  button.addEventListener('click', () => {
-    document.querySelectorAll('[data-work-filter]').forEach((item) => item.classList.remove('is-active'));
-    button.classList.add('is-active');
-    renderPortfolioWorks(button.dataset.workFilter);
-    bindVideoButtons(portfolioGrid);
-  });
-});
-
-const setHeader = () => header.classList.toggle('is-scrolled', window.scrollY > 24);
-setHeader();
-window.addEventListener('scroll', setHeader, { passive: true });
-
-navToggle.addEventListener('click', () => {
-  const open = siteNav.classList.toggle('is-open');
-  navToggle.setAttribute('aria-expanded', String(open));
-  document.body.classList.toggle('modal-open', open);
-});
-
-siteNav.addEventListener('click', (event) => {
-  if (event.target.matches('a')) {
-    siteNav.classList.remove('is-open');
-    navToggle.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('modal-open');
-  }
-});
-
-const revealObserver = new IntersectionObserver((entries, observer) => {
-  entries.forEach((entry) => {
-    if (!entry.isIntersecting) return;
-    entry.target.classList.add('is-visible');
-    observer.unobserve(entry.target);
-  });
-}, { threshold: 0.13 });
-
-document.querySelectorAll('.reveal').forEach((element, index) => {
-  element.style.transitionDelay = `${Math.min((index % 4) * 60, 180)}ms`;
-  revealObserver.observe(element);
-});
 
 const openModal = (title, content) => {
   modalTitle.textContent = title;
@@ -145,80 +78,152 @@ const closeModal = () => {
   const video = modalBody.querySelector('video');
   if (video) video.pause();
   modal.close();
-  document.body.classList.remove('modal-open');
   modalBody.replaceChildren();
+  document.body.classList.remove('modal-open');
 };
+
+const openVideo = (button) => {
+  const video = document.createElement('video');
+  video.src = button.dataset.video;
+  video.controls = true;
+  video.playsInline = true;
+  video.preload = 'metadata';
+  openModal(button.dataset.title || '项目演示', video);
+  video.play().catch(() => {});
+};
+
+const openGallery = (key) => {
+  const data = galleries[key];
+  if (!data) return;
+  const wrapper = document.createElement('div');
+  wrapper.className = `gallery-grid ${data.className}`;
+  data.images.forEach(([src, alt, label, variant]) => {
+    const image = document.createElement('img');
+    image.src = src;
+    image.alt = alt;
+    image.loading = 'lazy';
+    if (!label) {
+      wrapper.append(image);
+      return;
+    }
+    const figure = document.createElement('figure');
+    figure.className = `proof-card ${variant || ''}`;
+    const frame = document.createElement('div');
+    frame.className = 'proof-image-frame';
+    const caption = document.createElement('figcaption');
+    caption.textContent = label;
+    frame.append(image);
+    figure.append(frame, caption);
+    wrapper.append(figure);
+  });
+  openModal(data.title, wrapper);
+};
+
+const openProof = (button) => {
+  const image = document.createElement('img');
+  image.src = button.dataset.proof;
+  image.alt = button.dataset.title || '数据凭证';
+  image.className = 'modal-image';
+  openModal(button.dataset.title || '数据凭证', image);
+};
+
+const renderPortfolioWorks = (filter = 'all') => {
+  const grid = document.querySelector('#portfolioGrid');
+  if (!grid) return;
+  const works = filter === 'all' ? portfolioWorks : portfolioWorks.filter((work) => work.category === filter);
+  grid.replaceChildren(...works.map((work) => {
+    const card = document.createElement('article');
+    card.className = `portfolio-card ${work.orientation}`;
+    card.innerHTML = `
+      <button class="portfolio-card-media" type="button" data-video="${work.video}" data-title="${work.title}">
+        <img src="${work.poster}" alt="${work.title}作品封面" loading="lazy" />
+        <span class="portfolio-card-play" aria-hidden="true">▶</span>
+        <span class="portfolio-card-duration">${work.duration}</span>
+      </button>
+      <div class="portfolio-card-copy"><h4>${work.title}</h4><p>${work.service}</p></div>`;
+    return card;
+  }));
+};
+
+const activateTab = (name, options = {}) => {
+  if (!sectionTabs.some((tab) => tab.dataset.tab === name)) name = 'work';
+  sectionTabs.forEach((tab) => {
+    const active = tab.dataset.tab === name;
+    tab.classList.toggle('is-active', active);
+    tab.setAttribute('aria-selected', String(active));
+    tab.tabIndex = active ? 0 : -1;
+  });
+  tabPanels.forEach((panel) => {
+    const active = panel.id === `panel-${name}`;
+    panel.hidden = !active;
+    panel.classList.toggle('is-active', active);
+  });
+  if (options.updateHash !== false) history.replaceState(null, '', `#${name}`);
+  if (options.scroll) document.querySelector('.portfolio-sections').scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+sectionTabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => activateTab(tab.dataset.tab));
+  tab.addEventListener('keydown', (event) => {
+    if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+    event.preventDefault();
+    const direction = event.key === 'ArrowRight' ? 1 : -1;
+    const next = sectionTabs[(index + direction + sectionTabs.length) % sectionTabs.length];
+    next.focus();
+    activateTab(next.dataset.tab);
+  });
+});
+
+document.addEventListener('click', (event) => {
+  const videoButton = event.target.closest('[data-video]');
+  if (videoButton) return openVideo(videoButton);
+  const galleryButton = event.target.closest('[data-gallery]');
+  if (galleryButton) return openGallery(galleryButton.dataset.gallery);
+  const proofButton = event.target.closest('[data-proof]');
+  if (proofButton) return openProof(proofButton);
+  const tabTarget = event.target.closest('[data-tab-target]');
+  if (tabTarget) activateTab(tabTarget.dataset.tabTarget, { scroll: true });
+  const filterButton = event.target.closest('[data-work-filter]');
+  if (filterButton) {
+    document.querySelectorAll('[data-work-filter]').forEach((item) => item.classList.remove('is-active'));
+    filterButton.classList.add('is-active');
+    renderPortfolioWorks(filterButton.dataset.workFilter);
+  }
+});
 
 modalClose.addEventListener('click', closeModal);
-modal.addEventListener('click', (event) => {
-  if (event.target === modal) closeModal();
-});
+modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && modal.open) closeModal(); });
 
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && modal.open) closeModal();
-});
+const revealObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('is-visible');
+    observer.unobserve(entry.target);
+  });
+}, { threshold: 0.09 });
+document.querySelectorAll('.reveal').forEach((element) => revealObserver.observe(element));
 
-const bindVideoButtons = (root = document) => {
-  root.querySelectorAll('[data-video]').forEach((button) => {
-    if (button.dataset.videoBound === 'true') return;
-    button.dataset.videoBound = 'true';
-    button.addEventListener('click', () => {
-    const video = document.createElement('video');
-    video.src = button.dataset.video;
-    video.controls = true;
-    video.playsInline = true;
-    video.preload = 'metadata';
-    openModal(button.dataset.title || '项目演示', video);
-    video.play().catch(() => {});
-  });
-  });
+const updateTime = () => {
+  const value = new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date());
+  chinaTime.textContent = `杭州 ${value}`;
 };
+updateTime();
+setInterval(updateTime, 30000);
 
-bindVideoButtons();
-
-document.querySelectorAll('[data-gallery]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const data = galleries[button.dataset.gallery];
-    const wrapper = document.createElement('div');
-    wrapper.className = `gallery-grid ${data.className}`;
-    data.images.forEach(([src, alt, label, variant]) => {
-      const image = document.createElement('img');
-      image.src = src;
-      image.alt = alt;
-      image.loading = 'lazy';
-      if (!label) {
-        wrapper.append(image);
-        return;
-      }
-
-      const figure = document.createElement('figure');
-      figure.className = `proof-card ${variant || ''}`;
-      const imageFrame = document.createElement('div');
-      imageFrame.className = 'proof-image-frame';
-      const caption = document.createElement('figcaption');
-      caption.textContent = label;
-      imageFrame.append(image);
-      figure.append(imageFrame, caption);
-      wrapper.append(figure);
-    });
-    openModal(data.title, wrapper);
-  });
+const applyTheme = (theme) => {
+  document.documentElement.dataset.theme = theme;
+  themeToggle.querySelector('span').textContent = theme === 'dark' ? '☾' : '☼';
+};
+let savedTheme = 'light';
+try { savedTheme = localStorage.getItem('portfolio-theme') || 'light'; } catch (error) {}
+applyTheme(savedTheme);
+themeToggle.addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  try { localStorage.setItem('portfolio-theme', next); } catch (error) {}
 });
 
-document.querySelectorAll('[data-proof]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const image = document.createElement('img');
-    image.src = button.dataset.proof;
-    image.alt = button.dataset.title || '数据凭证';
-    image.className = 'modal-image';
-    openModal(button.dataset.title || '数据凭证', image);
-  });
-});
-
-const heroImage = document.querySelector('.hero-image');
-if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  window.addEventListener('scroll', () => {
-    const offset = Math.min(window.scrollY * 0.045, 24);
-    heroImage.style.transform = `scale(1.015) translateY(${offset}px)`;
-  }, { passive: true });
-}
+renderPortfolioWorks();
+const initialTab = location.hash.replace('#', '');
+activateTab(initialTab || 'work', { updateHash: Boolean(initialTab) });
