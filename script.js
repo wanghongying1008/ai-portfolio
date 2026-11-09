@@ -24,14 +24,6 @@ const galleries = {
       ['assets/images/h5-painpoints.png', '痛点选择页']
     ]
   },
-  certificates: {
-    title: '专业证书',
-    className: 'certificates',
-    images: [
-      ['assets/images/certificate-ai-agent.png', 'AI智能体应用开发工程师高级专业技术证书'],
-      ['assets/images/certificate-ai-course.png', '人工智能与创业智慧课程认证']
-    ]
-  },
   'sales-stages': {
     title: '抖音女装多阶段经营数据',
     className: 'sales-stages',
@@ -208,15 +200,6 @@ document.querySelectorAll('[data-proof]').forEach((button) => {
     image.alt = button.dataset.title || '数据凭证';
     image.className = 'modal-image';
     openModal(button.dataset.title || '数据凭证', image);
-  });
-});
-
-document.querySelectorAll('[data-wechat]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const content = document.querySelector('#wechatTemplate').content.cloneNode(true);
-    const wrapper = document.createElement('div');
-    wrapper.append(content);
-    openModal('微信联系', wrapper);
   });
 });
 
