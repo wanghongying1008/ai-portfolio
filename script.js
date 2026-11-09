@@ -46,12 +46,15 @@ const portfolioWorks = [
   { id: 'coffee-ai', category: 'food', title: '咖啡｜AI展示短片', service: 'AI视觉＋剪辑', duration: '00:15', poster: 'assets/portfolio/posters/coffee-ai.jpg', video: 'assets/portfolio/videos/coffee-ai.mp4', orientation: 'portrait' },
   { id: 'jianshanchuan-guide', category: 'food', title: '见山川｜门店导引', service: '拍摄＋剪辑', duration: '00:57', poster: 'assets/portfolio/posters/jianshanchuan-guide.jpg', video: 'assets/portfolio/videos/jianshanchuan-guide.mp4', orientation: 'portrait' },
   { id: 'jianshanchuan-fish', category: 'food', title: '见山川｜肥肠麻辣鱼', service: '拍摄＋剪辑', duration: '00:58', poster: 'assets/portfolio/posters/jianshanchuan-fish.jpg', video: 'assets/portfolio/videos/jianshanchuan-fish.mp4', orientation: 'portrait' },
+  { id: 'bunana-store', category: 'food', title: '咘呐呐辅食店｜门店探访', service: '上门拍摄＋剪辑', duration: '01:01', poster: 'assets/portfolio/posters/bunana-store.jpg', video: 'assets/portfolio/videos/bunana-store.mp4', orientation: 'portrait' },
+  { id: 'bunana-chicken-bun', category: 'food', title: '咘呐呐辅食店｜小鸡包制作', service: '产品拍摄＋剪辑', duration: '01:05', poster: 'assets/portfolio/posters/bunana-chicken-bun.jpg', video: 'assets/portfolio/videos/bunana-chicken-bun.mp4', orientation: 'portrait' },
   { id: 'womenswear-ai-01', category: 'womenswear', title: '女装｜日常穿搭展示', service: 'AI设计＋剪辑', duration: '00:09', poster: 'assets/portfolio/posters/womenswear-ai-01.jpg', video: 'assets/portfolio/videos/womenswear-ai-01.mp4', orientation: 'portrait' },
   { id: 'womenswear-ai-02', category: 'womenswear', title: '女装｜礼服时尚展示', service: 'AI设计＋剪辑', duration: '00:29', poster: 'assets/portfolio/posters/womenswear-ai-02.jpg', video: 'assets/portfolio/videos/womenswear-ai-02.mp4', orientation: 'portrait' },
   { id: 'womenswear-ai-03', category: 'womenswear', title: '女装｜氛围场景短片', service: 'AI设计＋剪辑', duration: '00:17', poster: 'assets/portfolio/posters/womenswear-ai-03.jpg', video: 'assets/portfolio/videos/womenswear-ai-03.mp4', orientation: 'landscape' },
   { id: 'jewelry-talking', category: 'jewelry', title: '珠宝｜口播切片', service: '编排＋剪辑', duration: '00:16', poster: 'assets/portfolio/posters/jewelry-talking.jpg', video: 'assets/portfolio/videos/jewelry-talking.mp4', orientation: 'portrait' },
   { id: 'basketball-class', category: 'basketball', title: '少儿篮球｜课堂记录', service: '客户提供素材 · 剪辑包装', duration: '02:07', poster: 'assets/portfolio/posters/basketball-class.jpg', video: 'assets/portfolio/videos/basketball-class.mp4', orientation: 'landscape' },
-  { id: 'talking-head', category: 'talking', title: '人物口播｜字幕与信息包装', service: '客户提供素材 · 剪辑包装', duration: '01:15', poster: 'assets/portfolio/posters/talking-head.jpg', video: 'assets/portfolio/videos/talking-head.mp4', orientation: 'portrait' }
+  { id: 'talking-head', category: 'talking', title: '人物口播｜字幕与信息包装', service: '客户提供素材 · 剪辑包装', duration: '01:15', poster: 'assets/portfolio/posters/talking-head.jpg', video: 'assets/portfolio/videos/talking-head.mp4', orientation: 'portrait' },
+  { id: 'medical-aesthetics-talking', category: 'talking', title: '医美口播｜皮肤选品解析', service: '口播剪辑＋信息包装', duration: '00:38', poster: 'assets/portfolio/posters/medical-aesthetics-talking.jpg', video: 'assets/portfolio/videos/medical-aesthetics-talking.mp4', orientation: 'portrait' }
 ];
 
 const portfolioGrid = document.querySelector('#portfolioGrid');
