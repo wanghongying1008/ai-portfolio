@@ -24,6 +24,14 @@ const galleries = {
       ['assets/images/h5-painpoints.png', '痛点选择页']
     ]
   },
+  certificates: {
+    title: '专业证书',
+    className: 'certificates',
+    images: [
+      ['assets/images/certificate-ai-agent.png', 'AI智能体应用开发工程师高级专业技术证书（证件号码已遮盖）'],
+      ['assets/images/certificate-ai-course.png', '人工智能与创业智慧课程认证']
+    ]
+  },
   'sales-stages': {
     title: '抖音女装多阶段经营数据',
     className: 'sales-stages',
