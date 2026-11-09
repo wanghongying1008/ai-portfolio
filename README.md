@@ -19,8 +19,8 @@ python -m http.server 4173 --bind 127.0.0.1
 - `script.js`：导航、弹窗、视频、画廊和数据凭证交互
 - `assets/images`：头像、项目截图、数据凭证和已做隐私处理的证书
 - `assets/videos`：项目演示视频
-- `assets/portfolio/posters`：18个拍摄、剪辑与AIGC作品封面
-- `assets/portfolio/videos`：17个新增作品视频；麻婆豆腐复用 `assets/videos/merchant-demo.mp4`
+- `assets/portfolio/posters`：19个拍摄、剪辑与AIGC作品封面
+- `assets/portfolio/videos`：18个新增作品视频；麻婆豆腐复用 `assets/videos/merchant-demo.mp4`
 
 ## 发布说明
 

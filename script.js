@@ -62,7 +62,8 @@ const portfolioWorks = [
   { id: 'jewelry-talking', category: 'jewelry', title: '珠宝｜口播切片', service: '编排＋剪辑', duration: '00:16', poster: 'assets/portfolio/posters/jewelry-talking.jpg', video: 'assets/portfolio/videos/jewelry-talking.mp4', orientation: 'portrait' },
   { id: 'basketball-class', category: 'basketball', title: '少儿篮球｜课堂记录', service: '客户提供素材 · 剪辑包装', duration: '02:07', poster: 'assets/portfolio/posters/basketball-class.jpg', video: 'assets/portfolio/videos/basketball-class.mp4', orientation: 'landscape' },
   { id: 'talking-head', category: 'talking', title: '人物口播｜字幕与信息包装', service: '客户提供素材 · 剪辑包装', duration: '01:15', poster: 'assets/portfolio/posters/talking-head.jpg', video: 'assets/portfolio/videos/talking-head.mp4', orientation: 'portrait' },
-  { id: 'medical-aesthetics-talking', category: 'talking', title: '医美口播｜皮肤选品解析', service: '口播剪辑＋信息包装', duration: '00:38', poster: 'assets/portfolio/posters/medical-aesthetics-talking.jpg', video: 'assets/portfolio/videos/medical-aesthetics-talking.mp4', orientation: 'portrait' }
+  { id: 'medical-aesthetics-talking', category: 'talking', title: '医美口播｜皮肤选品解析', service: '口播剪辑＋信息包装', duration: '00:38', poster: 'assets/portfolio/posters/medical-aesthetics-talking.jpg', video: 'assets/portfolio/videos/medical-aesthetics-talking.mp4', orientation: 'portrait' },
+  { id: 'thriller-short-film', category: 'shortfilm', title: '原创短剧｜惊悚悬疑', service: '剧情策划＋剪辑包装', duration: '00:46', poster: 'assets/portfolio/posters/thriller-short-film.jpg', video: 'assets/portfolio/videos/thriller-short-film.mp4', orientation: 'portrait' }
 ];
 
 const portfolioGrid = document.querySelector('#portfolioGrid');
