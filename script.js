@@ -45,6 +45,41 @@ const galleries = {
   }
 };
 
+const agentShowcases = [
+  {
+    index: '01',
+    title: '闲置物品种草官',
+    description: '根据闲置物品信息生成卖点梳理、种草表达和发布文案。',
+    image: 'assets/images/coze-idle.jpg',
+    video: 'assets/videos/coze-idle-demo.mp4',
+    tag: '商品理解 · 种草文案'
+  },
+  {
+    index: '02',
+    title: '链接生成热门标题与文案',
+    description: '读取商品或内容链接，提炼信息并生成适合传播的标题与文案。',
+    image: 'assets/images/coze-copywriting-output.jpg',
+    video: 'assets/videos/coze-copywriting-demo.mp4',
+    tag: '链接解析 · 内容生成'
+  },
+  {
+    index: '03',
+    title: 'AI课程知识库学习助手',
+    description: '基于课程资料检索回答，并对比通用回答与知识库回答。',
+    image: 'assets/images/coze-course-output.jpg',
+    video: 'assets/videos/coze-course-demo.mp4',
+    tag: '知识库 · 学习问答'
+  },
+  {
+    index: '04',
+    title: '皮肤护理咨询助手',
+    description: '收集基础护理诉求，输出结构化的日常护理建议与注意事项。',
+    image: 'assets/images/coze-skincare-output.jpg',
+    video: 'assets/videos/coze-skincare-demo.mp4',
+    tag: '需求识别 · 结构化建议'
+  }
+];
+
 const portfolioWorks = [
   { category: 'food', title: '春江骊宴｜竹韵火灼鲜椒焗牛肉', service: '上门拍摄＋剪辑', duration: '00:27', poster: 'assets/portfolio/posters/chunjiang-beef.jpg', video: 'assets/portfolio/videos/chunjiang-beef.mp4', orientation: 'portrait' },
   { category: 'food', title: '见山川｜菜品展示', service: '上门拍摄＋剪辑', duration: '00:19', poster: 'assets/portfolio/posters/jianshanchuan-food.jpg', video: 'assets/portfolio/videos/jianshanchuan-food.mp4', orientation: 'portrait' },
@@ -70,7 +105,7 @@ const portfolioWorks = [
 const openModal = (title, content) => {
   modalTitle.textContent = title;
   modalBody.replaceChildren(content);
-  modal.showModal();
+  if (!modal.open) modal.showModal();
   document.body.classList.add('modal-open');
 };
 
@@ -127,6 +162,38 @@ const openProof = (button) => {
   openModal(button.dataset.title || '数据凭证', image);
 };
 
+const openAgentShowcase = () => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'agent-showcase';
+
+  const intro = document.createElement('div');
+  intro.className = 'agent-showcase-intro';
+  intro.innerHTML = '<p>COZE · FOUR WORKING PROTOTYPES</p><h3>四个场景，四段真实运行演示</h3><span>点击任一案例即可播放对应的客户端演示视频。</span>';
+
+  const grid = document.createElement('div');
+  grid.className = 'agent-case-grid';
+  agentShowcases.forEach((item) => {
+    const card = document.createElement('article');
+    card.className = 'agent-case-card';
+    card.innerHTML = `
+      <button class="agent-case-media" type="button" data-video="${item.video}" data-title="${item.title}｜运行演示">
+        <img src="${item.image}" alt="${item.title}演示界面" loading="lazy" />
+        <span class="agent-case-play" aria-hidden="true">▶</span>
+        <span class="agent-case-index">${item.index}</span>
+      </button>
+      <div class="agent-case-copy">
+        <p>${item.tag}</p>
+        <h4>${item.title}</h4>
+        <span>${item.description}</span>
+        <button type="button" data-video="${item.video}" data-title="${item.title}｜运行演示">播放演示 ↗</button>
+      </div>`;
+    grid.append(card);
+  });
+
+  wrapper.append(intro, grid);
+  openModal('多场景智能体与知识库', wrapper);
+};
+
 const renderPortfolioWorks = (filter = 'all') => {
   const grid = document.querySelector('#portfolioGrid');
   if (!grid) return;
@@ -181,6 +248,8 @@ document.addEventListener('click', (event) => {
   if (galleryButton) return openGallery(galleryButton.dataset.gallery);
   const proofButton = event.target.closest('[data-proof]');
   if (proofButton) return openProof(proofButton);
+  const agentShowcaseButton = event.target.closest('[data-agent-showcase]');
+  if (agentShowcaseButton) return openAgentShowcase();
   const tabTarget = event.target.closest('[data-tab-target]');
   if (tabTarget) activateTab(tabTarget.dataset.tabTarget, { scroll: true });
   const filterButton = event.target.closest('[data-work-filter]');

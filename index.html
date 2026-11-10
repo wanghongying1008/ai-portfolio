@@ -6,7 +6,7 @@
     <meta name="description" content="王虹瑛的AI应用、智能体、AIGC内容、电商运营与短视频作品集。" />
     <meta name="theme-color" content="#f5f3ef" />
     <title>王虹瑛｜AI应用与业务增长</title>
-    <link rel="stylesheet" href="styles.css?v=9" />
+    <link rel="stylesheet" href="styles.css?v=10" />
   </head>
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
@@ -23,18 +23,18 @@
     <main id="main">
       <section class="hero" id="top" aria-labelledby="heroTitle">
         <div class="hero-collage reveal" aria-label="王虹瑛与代表项目拼贴">
-          <figure class="collage-card collage-left">
+          <button class="collage-card collage-left" type="button" data-gallery="h5" aria-label="查看商家经营诊断H5案例">
             <img src="assets/images/h5-home.png" alt="商家经营诊断H5" />
-            <figcaption>H5 EXPERIENCE</figcaption>
-          </figure>
-          <figure class="collage-card collage-center">
+            <span class="collage-card-caption">H5 EXPERIENCE <i>↗</i></span>
+          </button>
+          <button class="collage-card collage-center" type="button" data-tab-target="profile" aria-label="查看王虹瑛个人能力">
             <img src="assets/images/portrait.jpg" alt="王虹瑛商务肖像" />
-            <figcaption><strong>王虹瑛</strong><span>杭州</span></figcaption>
-          </figure>
-          <figure class="collage-card collage-right">
+            <span class="collage-card-caption"><strong>王虹瑛</strong><span>杭州 · 查看简介</span></span>
+          </button>
+          <button class="collage-card collage-right" type="button" data-video="assets/videos/dify-demo.mp4" data-title="服装单款选款诊断智能体演示" aria-label="播放Dify服装诊断工作流演示">
             <img src="assets/images/dify-workflow.png" alt="Dify服装诊断工作流" />
-            <figcaption>AI WORKFLOW</figcaption>
-          </figure>
+            <span class="collage-card-caption">AI WORKFLOW <i>▶</i></span>
+          </button>
           <span class="availability"><i></i> 离职待业 · 可尽快到岗</span>
         </div>
 
@@ -75,12 +75,15 @@
               </article>
 
               <article class="work-card reveal">
-                <div class="work-media media-pair">
-                  <img src="assets/images/coze-agent.jpg" alt="扣子智能体项目" loading="lazy" />
-                  <img src="assets/images/knowledge-base.jpg" alt="AI课程知识库助手" loading="lazy" />
-                  <span class="media-label">Coze · Knowledge</span>
-                </div>
-                <div class="work-copy"><span>02</span><div><h3>多场景智能体与知识库</h3><p>闲置物品种草、热门文案、课程学习与皮肤护理等可演示原型。</p></div><button class="arrow-button" type="button" data-video="assets/videos/coze-demo.mp4" data-title="多场景智能体演示">↗</button></div>
+                <button class="work-media media-agent-grid" type="button" data-agent-showcase aria-label="查看四个多场景智能体演示">
+                  <img src="assets/images/coze-idle.jpg" alt="闲置物品种草官" loading="lazy" />
+                  <img src="assets/images/coze-copywriting-output.jpg" alt="热门标题与文案生成" loading="lazy" />
+                  <img src="assets/images/coze-course-output.jpg" alt="AI课程知识库学习助手" loading="lazy" />
+                  <img src="assets/images/coze-skincare-output.jpg" alt="皮肤护理咨询助手" loading="lazy" />
+                  <span class="media-label">Coze · 4 Cases</span>
+                  <span class="media-link">查看全部 ↗</span>
+                </button>
+                <div class="work-copy"><span>02</span><div><h3>多场景智能体与知识库</h3><p>四个独立案例：闲置物品种草、热门文案、课程学习与皮肤护理，均可观看实际运行演示。</p></div><button class="arrow-button" type="button" data-agent-showcase aria-label="查看四个智能体案例">↗</button></div>
               </article>
 
               <article class="work-card reveal">
@@ -195,6 +198,6 @@
       <div class="modal-body" id="modalBody"></div>
     </dialog>
 
-    <script src="script.js?v=9"></script>
+    <script src="script.js?v=10"></script>
   </body>
 </html>
