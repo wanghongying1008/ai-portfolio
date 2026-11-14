@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f6eaf0">
+<title>五柳社区小助手</title>
+<!--
+  五柳社区小助手 · 手机端 H5 聊天页（单文件，无第三方依赖）
+  - 不含任何 Token：页面只调用你自己的代理地址 PROXY_URL，Token 只保存在代理的环境变量里。
+  - 页面只认代理的“统一协议”，后台是扣子还是 Dify 由代理的 BACKEND 决定，页面不用改：
+      请求  POST PROXY_URL  {"text","conversation_id","user_id"}
+      返回  SSE：{type:'status'|'delta'|'replace'|'done'|'error', text?, conversationId?, code?, message?}
+  - 不公开：noindex，不在作品集首页挂入口，只分享链接/二维码。
+  - 打开即显示开场白 + 4 个推荐问题（本地渲染，不需要先发“你好”）。
+  - 回答里的出处链接：点开先弹出提示，再在新窗口打开；对话记录自动保存在本机，返回后仍在。
+  - 未配置代理地址，或地址后加 ?demo=1 时，进入“演示模式”（本地模拟回答，不连小助手）。
+-->
+<style>
+  /* v2 视觉：柔和粉/紫/绿渐变（低饱和），深墨色文字，保证对比度 ≥ WCAG AA */
+  :root{
+    --fs: 21px;
+    --ink:#241c38;        /* 主文字 */
+    --ink-2:#463d5c;      /* 次要文字 */
+    --accent:#4a2f86;     /* 链接、强调 */
+    --user-bg:#463a75;    /* 用户气泡 */
+    --card:rgba(255,255,255,.88);
+    --warn:#8a2a1c;
+    --shadow: 0 10px 30px rgba(70,52,110,.12), 0 2px 6px rgba(70,52,110,.08);
+  }
+  html.big{ --fs: 25px; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; height:100%; }
+  body{
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
+    font-size: var(--fs); line-height:1.65; color:var(--ink);
+    display:flex; flex-direction:column; height:100dvh; min-height:100%;
+    -webkit-text-size-adjust:100%; text-size-adjust:100%;
+    background:#f3eef4;
+  }
+  /* 背景渐变层：粉 → 淡紫 → 薄荷绿，均为低饱和浅色 */
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(120% 70% at 0% 0%, #f2d9e3 0%, rgba(242,217,227,0) 60%),
+      radial-gradient(110% 60% at 100% 8%, #e1dcf3 0%, rgba(225,220,243,0) 62%),
+      radial-gradient(120% 70% at 85% 100%, #d9ecdf 0%, rgba(217,236,223,0) 60%),
+      linear-gradient(180deg, #f6eaf0 0%, #efeaf6 50%, #eaf3ee 100%);
+  }
+  header{
+    flex:none; padding: calc(10px + env(safe-area-inset-top)) 16px 4px;
+    display:flex; align-items:center; gap:10px;
+  }
+  header .brand{ flex:1; min-width:0; font-size:19px; font-weight:700; color:var(--ink-2);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:8px; }
+  header .brand .dot{ width:12px; height:12px; border-radius:50%; flex:none;
+    background:linear-gradient(135deg,#d9a7bd,#a99bd9 55%,#94c8a8); }
+  header button{
+    flex:none; font:inherit; font-size:18px; font-weight:700; color:var(--ink);
+    background:rgba(255,255,255,.72); border:1px solid rgba(70,52,110,.18); border-radius:999px;
+    padding:0 16px; min-height:56px; min-width:56px; box-shadow:0 2px 8px rgba(70,52,110,.08);
+  }
+  .demo-bar{ flex:none; margin:4px 16px 0; padding:8px 14px; border-radius:14px; display:none;
+    background:rgba(255,248,220,.92); color:#4d3800; font-size:17px; }
+  .demo .demo-bar{ display:block; }
+  main{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:8px 16px 20px; }
+
+  /* 首屏问候 */
+  .hero{ padding:18px 4px 8px; }
+  .hero .hi{ margin:0; font-size:36px; line-height:1.3; font-weight:800; letter-spacing:.5px; color:var(--ink); }
+  html.big .hero .hi{ font-size:40px; }
+  .hero .hi .spark{ color:var(--accent); font-weight:400; margin-right:4px; }
+  .hero .welcome{ margin:12px 0 0; color:var(--ink-2); }
+  .suggest-title{ margin:22px 4px 10px; font-size:18px; font-weight:700; color:var(--ink-2); }
+  html.big .suggest-title{ font-size:21px; }
+  .suggest{ display:flex; flex-direction:column; gap:14px; padding-bottom:6px; }
+  .suggest button{
+    font:inherit; font-weight:700; color:var(--ink); text-align:left;
+    background:var(--card); border:1px solid rgba(255,255,255,.9); border-radius:22px;
+    padding:14px 20px; min-height:64px; width:86%; box-shadow:var(--shadow);
+    display:flex; align-items:center; gap:12px;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transition: transform .15s ease;
+  }
+  .suggest button:nth-child(even){ align-self:flex-end; }
+  html.big .suggest button{ width:96%; padding:12px 16px; }
+  .suggest button .ic{ flex:none; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:20px; background:linear-gradient(135deg,#f3dbe5,#e2dcf4 55%,#d8ecdf); }
+  .suggest button:active{ transform:scale(.98); }
+  .suggest button:disabled{ opacity:.6; }
+
+  /* 对话 */
+  .row{ display:flex; margin:16px 0; }
+  .row.user{ justify-content:flex-end; }
+  .bubble{ max-width:90%; padding:14px 18px; border-radius:22px; word-break:break-word; overflow-wrap:anywhere; }
+  .bot .bubble{ background:rgba(255,255,255,.94); box-shadow:var(--shadow); border-top-left-radius:8px; }
+  .bot .bubble .who{ display:block; font-size:16px; font-weight:700; color:var(--ink-2); margin-bottom:4px; }
+  html.big .bot .bubble .who{ font-size:19px; }
+  .user .bubble{ background:var(--user-bg); color:#fff; border-top-right-radius:8px; white-space:pre-wrap; box-shadow:0 6px 18px rgba(70,58,117,.25); }
+  .bubble p{ margin:0 0 .5em; } .bubble p:last-child{ margin-bottom:0; }
+  .bubble ul,.bubble ol{ margin:.3em 0 .5em; padding-left:1.4em; }
+  .bubble li{ margin:.2em 0; }
+  .bubble h3{ font-size:calc(var(--fs) + 1px); margin:.4em 0 .3em; }
+  .bubble strong{ font-weight:800; }
+  .bubble a{ color:var(--accent); font-weight:700; text-decoration:underline; text-underline-offset:3px; word-break:break-all;
+    display:inline-block; padding:6px 0; min-height:44px; }
+  .bubble a::after{ content:" ↗"; }
+  .bubble code{ background:#efeaf6; padding:0 4px; border-radius:4px; font-size:.92em; }
+  .bubble blockquote{ margin:0 0 .6em; padding:8px 12px; border-left:5px solid var(--accent); background:#f4f0f9; border-radius:10px; color:var(--ink-2); }
+  .bubble hr{ border:0; border-top:1px solid #ddd6e8; margin:.6em 0; }
+  .status{ color:var(--ink-2); }
+  .dots::after{ content:"…"; animation: blink 1.2s infinite; }
+  @keyframes blink{ 50%{ opacity:.2; } }
+  .err{ color:var(--warn); font-weight:700; }
+  .retry{ display:inline-block; margin-top:10px; font:inherit; font-weight:700; padding:0 20px; border-radius:999px;
+    border:2px solid var(--warn); background:#fff; color:var(--warn); min-height:56px; }
+  .tip{ text-align:center; color:var(--ink-2); font-size:16px; margin:18px 0 0; }
+  html.big .tip{ font-size:19px; }
+
+  /* 底部圆角输入栏 */
+  footer{ flex:none; padding:8px 12px calc(12px + env(safe-area-inset-bottom)); }
+  .composer{
+    display:flex; align-items:flex-end; gap:8px; padding:8px 8px 8px 18px; border-radius:30px;
+    background:rgba(255,255,255,.95); box-shadow:0 8px 28px rgba(70,52,110,.16);
+    border:2px solid transparent;
+    background-image: linear-gradient(#fff,#fff), linear-gradient(120deg,#e8bfd0,#bfb3e6 50%,#a9d6b9);
+    background-origin:border-box; background-clip:padding-box, border-box;
+  }
+  .composer:focus-within{ box-shadow:0 0 0 3px rgba(74,47,134,.35), 0 8px 28px rgba(70,52,110,.16); }
+  .composer textarea{
+    flex:1; font:inherit; color:var(--ink); resize:none; min-height:56px; max-height:150px;
+    border:0; outline:0; background:transparent; padding:12px 0; line-height:1.4;
+  }
+  .composer textarea::placeholder{ color:#5f5873; opacity:1; }
+  .composer button{
+    flex:none; font:inherit; font-weight:800; color:#fff; background:var(--ink); border:0;
+    border-radius:999px; min-width:88px; min-height:56px; padding:0 18px;
+  }
+  .composer button:disabled{ background:#5f5873; }
+
+  /* 出处链接弹层 */
+  .mask{ position:fixed; inset:0; background:rgba(36,28,56,.45); display:none; align-items:flex-end; z-index:10; }
+  .mask.show{ display:flex; }
+  .sheet{ width:100%; background:#fff; border-radius:28px 28px 0 0; padding:22px 18px calc(18px + env(safe-area-inset-bottom)); }
+  .sheet h2{ margin:0 0 8px; font-size:calc(var(--fs) + 2px); }
+  .sheet .url{ color:var(--ink-2); font-size:18px; word-break:break-all; margin:0 0 12px;
+    background:#f4f1f8; border-radius:14px; padding:10px 12px; max-height:6em; overflow:auto; }
+  .sheet .hint{ margin:0 0 12px; color:var(--ink); }
+  .sheet button{ display:block; width:100%; font:inherit; font-weight:800; min-height:58px; border-radius:999px; margin-top:10px; }
+  .sheet .primary{ background:var(--ink); color:#fff; border:0; }
+  .sheet .secondary{ background:#fff; color:var(--accent); border:2px solid var(--accent); }
+  .sheet .plain{ background:#f4f1f8; color:var(--ink); border:0; }
+  .toast{ position:fixed; left:50%; bottom:120px; transform:translateX(-50%); background:rgba(36,28,56,.92); color:#fff;
+    padding:12px 18px; border-radius:16px; font-size:18px; z-index:20; display:none; max-width:88%; text-align:center; }
+  .toast.show{ display:block; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot" aria-hidden="true"></span>五柳社区小助手</div>
+  <button id="btnFont" type="button" aria-label="切换字号">字更大</button>
+  <button id="btnNew" type="button" aria-label="开始新对话">新对话</button>
+</header>
+<div class="demo-bar">演示模式：还没连上小助手，下面的回答是模拟的。</div>
+
+<main id="chat" aria-live="polite"></main>
+
+<footer>
+  <div class="composer">
+    <textarea id="input" rows="1" maxlength="300" placeholder="在这里输入问题" aria-label="输入问题"></textarea>
+    <button id="btnSend" type="button">发送</button>
+  </div>
+</footer>
+
+<div class="mask" id="linkMask" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet">
+    <h2 id="sheetTitle">打开出处网页</h2>
+    <p class="url" id="sheetUrl"></p>
+    <p class="hint">网页会在<strong>新页面</strong>打开。看完后点左上角的<strong>“返回”箭头 ←</strong>，就能回到这里，聊天记录不会丢。（微信里不要点“×”，那会关掉整个页面；关掉了也没关系，重新扫码打开，聊天记录还在。）</p>
+    <button class="primary" id="sheetOpen" type="button">打开网页</button>
+    <button class="secondary" id="sheetCopy" type="button">复制链接</button>
+    <button class="plain" id="sheetCancel" type="button">取消</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ========== 配置（部署时只改这里） ========== */
+  var PROXY_URL = 'https://1435975370-3dyfewhjdc.ap-shanghai.tencentscf.com/chat';   // 你的代理地址（不是扣子 Token！）
+  var WELCOME = '您好，我是五柳社区小助手，可以帮您查社区办事信息，有什么想问的直接说就行～';
+  var SUGGESTIONS = ['老年优待证怎么办？', '医保怎么交？', '高龄津贴怎么领？', '接到可疑电话怎么办？'];
+  var STORE_KEY = 'wuliu_chat_v1';
+  var STORE_TTL_MS = 12 * 60 * 60 * 1000;   // 对话记录在本机保留 12 小时
+  var REQUEST_TIMEOUT_MS = 120000;
+  /* ============================================ */
+
+  var params = new URLSearchParams(location.search);
+  var DEMO = params.get('demo') === '1' || /YOUR-PROXY/.test(PROXY_URL);
+  if (DEMO) { document.body.classList.add('demo'); STORE_KEY += '_demo'; }
+
+  var $chat = document.getElementById('chat');
+  var $input = document.getElementById('input');
+  var $send = document.getElementById('btnSend');
+  var busy = false;
+  var state = loadState();
+
+  /* ---------- 存储：保证点开出处再回来，对话还在 ---------- */
+  function randomId(prefix) {
+    var a = new Uint8Array(12);
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    return prefix + Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+  // 本机用户 ID：长期保存，只用来区分不同手机（Dify 需要），不含个人信息
+  var USER_ID = (function () {
+    try { var u = localStorage.getItem('wuliu_uid'); if (u) return u; u = randomId('u_'); localStorage.setItem('wuliu_uid', u); return u; }
+    catch (e) { return randomId('u_'); }
+  })();
+  function loadState() {
+    try {
+      var s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+      if (s && Array.isArray(s.messages) && Date.now() - (s.savedAt || 0) < STORE_TTL_MS) return s;
+    } catch (e) {}
+    return { conversationId: '', messages: [], savedAt: Date.now() };
+  }
+  function saveState() {
+    state.savedAt = Date.now();
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  window.addEventListener('pagehide', saveState);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) saveState(); });
+
+  /* ---------- 安全的简易 Markdown 渲染（只允许 http/https 链接） ---------- */
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function safeUrl(u) {
+    try { var x = new URL(u); return (x.protocol === 'http:' || x.protocol === 'https:') ? x.href : null; } catch (e) { return null; }
+  }
+  function link(url, text) {
+    var u = safeUrl(url);
+    if (!u) return esc(text);
+    return '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer" data-src-link="1">' + esc(text) + '</a>';
+  }
+  // 裸网址又长又难读：显示成「打开出处网页（域名）」，完整地址在点开后的确认层里展示
+  function bareLabel(u) {
+    try { return '打开出处网页（' + new URL(u).hostname.replace(/^www\./, '') + '）'; } catch (e) { return u; }
+  }
+  function inline(raw) {
+    // 先抽出链接，避免被转义/误伤
+    var slots = [];
+    function keep(html) { slots.push(html); return '\u0000' + (slots.length - 1) + '\u0000'; }
+    var s = raw
+      .replace(/\[([^\]\n]{1,200})\]\((https?:\/\/[^\s)]+)\)/g, function (_, t, u) { return keep(link(u, t)); })
+      .replace(/<(https?:\/\/[^\s>]+)>/g, function (_, u) { return keep(link(u, u)); })
+      .replace(/https?:\/\/[^\s<>"'）)\]，。；、]+/g, function (u) { return keep(link(u, bareLabel(u))); });
+    s = esc(s)
+      .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    return s.replace(/\u0000(\d+)\u0000/g, function (_, i) { return slots[+i]; });
+  }
+  function renderMarkdown(md) {
+    var lines = String(md || '').replace(/\r\n?/g, '\n').split('\n');
+    var out = [], list = null, para = [], quote = [];
+    function flushQuote() { if (quote.length) { out.push('<blockquote>' + quote.map(inline).join('<br>') + '</blockquote>'); quote = []; } }
+    function flushPara(keepQuote) { if (!keepQuote) flushQuote(); if (para.length) { out.push('<p>' + para.map(inline).join('<br>') + '</p>'); para = []; } }
+    function flushList() { if (list) { out.push('<' + list.tag + '>' + list.items.map(function (i) { return '<li>' + inline(i) + '</li>'; }).join('') + '</' + list.tag + '>'); list = null; } }
+    lines.forEach(function (line) {
+      var m;
+      if (/^\s*$/.test(line)) { flushPara(); flushList(); return; }
+      if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) { flushPara(); flushList(); out.push('<hr>'); return; }
+      if ((m = line.match(/^\s*>\s?(.*)$/))) { flushPara(true); flushList(); quote.push(m[1]); return; }
+      if ((m = line.match(/^\s*#{1,6}\s+(.*)$/))) { flushPara(); flushList(); out.push('<h3>' + inline(m[1]) + '</h3>'); return; }
+      if ((m = line.match(/^\s*[-*•]\s+(.*)$/))) { flushPara(); if (!list || list.tag !== 'ul') { flushList(); list = { tag: 'ul', items: [] }; } list.items.push(m[1]); return; }
+      if ((m = line.match(/^\s*\d+[.、)]\s*(.*)$/))) { flushPara(); if (!list || list.tag !== 'ol') { flushList(); list = { tag: 'ol', items: [] }; } list.items.push(m[1]); return; }
+      flushList(); para.push(line);
+    });
+    flushPara(); flushList();
+    return out.join('');
+  }
+
+  /* ---------- 界面 ---------- */
+  function scrollBottom() { requestAnimationFrame(function () { $chat.scrollTop = $chat.scrollHeight; }); }
+  function addRow(role) {
+    var row = document.createElement('div');
+    row.className = 'row ' + role;
+    var b = document.createElement('div');
+    b.className = 'bubble';
+    row.appendChild(b);
+    $chat.appendChild(row);
+    return b;
+  }
+  var GREETING = '您好！想办什么事？';
+  var ICONS = ['🪪', '🏥', '🎁', '📞'];
+  function renderWelcome() {
+    var hero = document.createElement('section');
+    hero.className = 'hero';
+    hero.innerHTML = '<h1 class="hi"><span class="spark" aria-hidden="true">✦</span>您好！<br>想办什么事？</h1>' +
+      '<p class="welcome">' + esc(WELCOME) + '</p>' +
+      '<div class="suggest-title">点一下，直接问：</div>';
+    var box = document.createElement('div');
+    box.className = 'suggest';
+    SUGGESTIONS.forEach(function (q, i) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.innerHTML = '<span class="ic" aria-hidden="true">' + (ICONS[i] || '💬') + '</span><span>' + esc(q) + '</span>';
+      btn.setAttribute('aria-label', q);
+      btn.addEventListener('click', function () { send(q); });
+      box.appendChild(btn);
+    });
+    hero.appendChild(box);
+    $chat.appendChild(hero);
+  }
+  var WHO = '<span class="who">社区小助手</span>';
+  function renderAll() {
+    $chat.innerHTML = '';
+    renderWelcome();
+    state.messages.forEach(function (m) {
+      var b = addRow(m.role);
+      if (m.role === 'user') b.textContent = m.text;
+      else b.innerHTML = WHO + (m.error ? '<span class="err">' + esc(m.text) + '</span>' : renderMarkdown(m.text));
+    });
+    var tip = document.createElement('p');
+    tip.className = 'tip';
+    tip.textContent = '回答仅供参考，具体以社区和相关部门的最新通知为准';
+    $chat.appendChild(tip);
+    scrollBottom();
+  }
+  function setBusy(v) {
+    busy = v;
+    $send.disabled = v;
+    $send.textContent = v ? '请稍等' : '发送';
+    Array.prototype.forEach.call(document.querySelectorAll('.suggest button'), function (b) { b.disabled = v; });
+  }
+  var toastTimer;
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+
+  /* ---------- 发送与流式接收 ---------- */
+  function send(text) {
+    text = String(text || '').trim();
+    if (!text || busy) return;
+    $input.value = ''; autoGrow();
+    state.messages.push({ role: 'user', text: text });
+    saveState();
+    renderAll();
+    var tip = $chat.querySelector('.tip');
+    var row = document.createElement('div'); row.className = 'row bot';
+    var b = document.createElement('div'); b.className = 'bubble';
+    b.innerHTML = WHO + '<span class="status dots">小助手正在查询，请稍等</span>';
+    row.appendChild(b); $chat.insertBefore(row, tip); scrollBottom();
+    setBusy(true);
+
+    var answer = '';
+    function onEvent(ev) {          // 只处理代理的统一协议
+      if (!ev || typeof ev !== 'object') return;
+      if (ev.conversationId) { state.conversationId = ev.conversationId; }
+      switch (ev.type) {
+        case 'delta': answer += String(ev.text || ''); break;
+        case 'replace': answer = String(ev.text || ''); break;
+        case 'status': if (!answer) b.innerHTML = WHO + '<span class="status dots">小助手' + esc(ev.text || '正在查询') + '</span>'; return;
+        case 'error': var er = new Error(ev.message || '小助手出错了'); er.code = ev.code; throw er;
+        default: return;   // done 等
+      }
+      b.innerHTML = WHO + renderMarkdown(answer);
+      scrollBottom();
+    }
+    function currentText() { return answer; }
+    var run = DEMO ? demoStream(text, onEvent) : realStream(text, onEvent);
+    run.then(function () {
+      var t = currentText().trim();
+      if (!t) throw new Error('小助手这次没有给出回答');
+      state.messages.push({ role: 'bot', text: t });
+      saveState();
+      setBusy(false);
+      renderAll();
+    }).catch(function (err) {
+      var partial = currentText().trim();
+      if (partial) state.messages.push({ role: 'bot', text: partial });
+      var msg = friendlyError(err);
+      state.messages.push({ role: 'bot', text: msg, error: true });
+      saveState();
+      setBusy(false);
+      renderAll();
+      var last = $chat.querySelectorAll('.row.bot .bubble');
+      var lb = last[last.length - 1];
+      var r = document.createElement('button');
+      r.type = 'button'; r.className = 'retry'; r.textContent = '再问一次';
+      r.addEventListener('click', function () {
+        state.messages.pop(); if (partial) state.messages.pop();
+        // 去掉上一条用户提问，重新发送
+        var lastUser = state.messages.pop();
+        saveState();
+        send(lastUser && lastUser.text || text);
+      });
+      lb.appendChild(document.createElement('br'));
+      lb.appendChild(r);
+      scrollBottom();
+    });
+  }
+  function friendlyError(err) {
+    var m = (err && err.message) || '', code = err && err.code;
+    if (code === 'upstream_busy') return '现在问的人有点多，请过一分钟再试。';
+    if (code === 'timeout') return '等了太久没有回应，请再试一次。';
+    if (code === 'upstream_auth' || code === 'upstream_unreachable' || code === 'upstream_error') return '小助手暂时连不上，请稍后再试。';
+    if (/429|too many/i.test(m)) return '现在问的人有点多，请过一分钟再试。';
+    if (/abort|timeout/i.test(m)) return '等了太久没有回应，请再试一次。';
+    if (/Failed to fetch|NetworkError|network|Load failed/i.test(m)) return '网络不太好，请检查网络后再试一次。';
+    return '抱歉，小助手暂时没能回答（' + m.slice(0, 60) + '）。请再试一次。';
+  }
+  function parseSSEBlock(block, onEvent) {
+    var data = block.split('\n').filter(function (l) { return l.indexOf('data:') === 0; })
+      .map(function (l) { return l.slice(5).trim(); }).join('\n');
+    if (!data || data === '[DONE]') return;
+    var obj; try { obj = JSON.parse(data); } catch (e) { return; }
+    onEvent(obj);
+  }
+  function realStream(text, onEvent) {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, REQUEST_TIMEOUT_MS);
+    return fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
+      body: JSON.stringify({ text: text, conversation_id: state.conversationId || '', user_id: USER_ID }),
+      signal: ctrl.signal
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.text().then(function (t) {
+          var msg = 'HTTP ' + res.status;
+          try { var j = JSON.parse(t); if (j && j.message) msg += ' ' + j.message; } catch (e) {}
+          throw new Error(msg);
+        });
+      }
+      if (!res.body || !res.body.getReader) {           // 极老浏览器：一次性读完
+        return res.text().then(function (t) { t.replace(/\r/g, '').split('\n\n').forEach(function (blk) { parseSSEBlock(blk, onEvent); }); });
+      }
+      var reader = res.body.getReader(), dec = new TextDecoder('utf-8'), buf = '';
+      function pump() {
+        return reader.read().then(function (r) {
+          if (r.done) { if (buf.trim()) parseSSEBlock(buf.replace(/\r/g, ''), onEvent); return; }
+          buf += dec.decode(r.value, { stream: true }).replace(/\r/g, '');
+          var parts = buf.split('\n\n'); buf = parts.pop();
+          parts.forEach(function (blk) { parseSSEBlock(blk, onEvent); });
+          return pump();
+        });
+      }
+      return pump();
+    }).finally(function () { clearTimeout(timer); });
+  }
+  // 演示模式：本地模拟流式回答（不连网络）
+  function demoStream(q, onEvent) {
+    var ans = '（演示回答）关于“' + q + '”，一般需要准备：\n\n' +
+      '1. **身份证**原件\n2. 户口本或居住证明\n3. 近期一寸照片 1 张\n\n' +
+      '可以到社区党群服务中心窗口办理。详细政策请看出处：[示例出处链接](https://www.gov.cn/)\n\n' +
+      '如有疑问，可以拨打社区服务电话咨询。';
+    var pieces = ans.match(/[\s\S]{1,6}/g);
+    return new Promise(function (resolve) {
+      var i = 0;
+      onEvent({ type: 'status', text: '正在查找资料' });
+      (function tick() {
+        if (i >= pieces.length) { onEvent({ type: 'done', conversationId: 'demo_conversation' }); return resolve(); }
+        onEvent({ type: 'delta', text: pieces[i++] });
+        setTimeout(tick, 25);
+      })();
+    });
+  }
+
+  /* ---------- 出处链接：弹层确认 → 新窗口打开；复制链接 ---------- */
+  var pendingUrl = null, $mask = document.getElementById('linkMask');
+  $chat.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[data-src-link]');
+    if (!a) return;
+    e.preventDefault();
+    pendingUrl = a.href;
+    document.getElementById('sheetUrl').textContent = pendingUrl;
+    $mask.classList.add('show');
+  });
+  function closeSheet() { $mask.classList.remove('show'); }
+  document.getElementById('sheetCancel').addEventListener('click', closeSheet);
+  $mask.addEventListener('click', function (e) { if (e.target === $mask) closeSheet(); });
+  document.getElementById('sheetOpen').addEventListener('click', function () {
+    saveState();
+    var a = document.createElement('a');
+    a.href = pendingUrl; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); a.remove();
+    closeSheet();
+  });
+  document.getElementById('sheetCopy').addEventListener('click', function () {
+    var url = pendingUrl;
+    function done() { toast('链接已复制，可以粘贴到浏览器打开'); closeSheet(); }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(done, fallback);
+    } else fallback();
+    function fallback() {
+      var ta = document.createElement('textarea'); ta.value = url; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { toast('复制失败，请长按链接复制'); }
+      ta.remove();
+    }
+  });
+
+  /* ---------- 输入框、按钮 ---------- */
+  function autoGrow() { $input.style.height = 'auto'; $input.style.height = Math.min($input.scrollHeight, 150) + 'px'; }
+  $input.addEventListener('input', autoGrow);
+  $input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send($input.value); }
+  });
+  $send.addEventListener('click', function () { send($input.value); });
+  document.getElementById('btnNew').addEventListener('click', function () {
+    if (busy) return;
+    if (state.messages.length && !confirm('要清空聊天记录，重新开始吗？')) return;
+    state = { conversationId: '', messages: [], savedAt: Date.now() };
+    saveState(); renderAll();
+  });
+  var $font = document.getElementById('btnFont');
+  function applyFont(big) {
+    document.documentElement.classList.toggle('big', big);
+    $font.textContent = big ? '字变小' : '字更大';
+    try { localStorage.setItem('wuliu_font_big', big ? '1' : '0'); } catch (e) {}
+  }
+  applyFont((function () { try { return localStorage.getItem('wuliu_font_big') === '1'; } catch (e) { return false; } })());
+  $font.addEventListener('click', function () { applyFont(!document.documentElement.classList.contains('big')); scrollBottom(); });
+
+  renderAll();
+  window.__wuliu = { send: send, renderMarkdown: renderMarkdown, state: function () { return state; }, DEMO: DEMO };
+})();
+</script>
+</body>
+</html>
